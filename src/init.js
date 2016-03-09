@@ -59,11 +59,20 @@ function getJspmPackageJson(dir) {
 }
 
 module.exports = function(files, basePath, jspm, client) {
+  var jpj = getJspmPackageJson(basePath);
+
   // Initialize jspm config if it wasn't specified in karma.conf.js
   if(!jspm)
     jspm = {};
-  if(!jspm.config)
-    jspm.config = getJspmPackageJson(basePath).configFile || "config.js";
+  if(!jspm.config) {
+    if (jpj.configFiles) {
+      jspm.config = [jpj.configFiles["jspm"], jpj.configFiles["jspm:browser"]];
+    } else if (jpj.configFile) {
+      jspm.config = [jpj.configFile];
+    } else {
+      jspm.config = ["config.js"]
+    }
+  }
   if(!jspm.loadFiles)
     jspm.loadFiles = [];
   if(!jspm.serveFiles)
@@ -99,7 +108,10 @@ module.exports = function(files, basePath, jspm, client) {
       return packagesPath + fileName + '.js';
     }
   }
-  files.unshift(createPattern(configPath));
+  // add jspm config files
+  for (var i=0, l=jspm.config.length; i<l; i++) {
+    files.unshift(createPattern(path.normalize(basePath + '/' + jspm.config[i])));
+  }
   files.unshift(createPattern(__dirname + '/adapter.js'));
   files.unshift(createPattern(getLoaderPath('system-polyfills.src')));
   files.unshift(createPattern(getLoaderPath('system.src')));
