@@ -16,7 +16,7 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "glob": "~3.2"
+    "glob": "~5.0.15"
   },
   "devDependencies": {
     "gulp": "^3.8.7",
